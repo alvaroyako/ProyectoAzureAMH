@@ -176,9 +176,9 @@ namespace ProyectoAzureAMH.Services
         #endregion
 
         #region Metodos de Usuarios
-        public async Task<Usuario> GetPerfilUsuarioAsync(int idusuario,string token)
+        public async Task<Usuario> GetPerfilUsuarioAsync(string token)
         {
-            string request = "/usuarios/findusuario/"+idusuario;
+            string request = "/usuarios/perfilusuario";
             Usuario usuario = await this.CallApiAsync<Usuario>(request, token);
             return usuario;
         }

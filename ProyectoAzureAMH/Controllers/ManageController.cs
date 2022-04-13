@@ -1,9 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using NugetUtopia;
 using ProyectoAzureAMH.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace ProyectoAzureAMH.Controllers
@@ -17,7 +21,7 @@ namespace ProyectoAzureAMH.Controllers
             this.service = service;
         }
 
-        public IActionResult Index()
+        public IActionResult LogIn()
         {
             return View();
         }
@@ -36,9 +40,9 @@ namespace ProyectoAzureAMH.Controllers
                 Usuario usuario = await this.service.GetPerfilUsuarioAsync(token);
                 HttpContext.Session.SetString("TOKEN", token);
                 ClaimsIdentity identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name, ClaimTypes.Role);
-                identity.AddClaim(new Claim(ClaimTypes.Name, empleado.Apellido));
-                identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, empleado.IdEmpleado.ToString()));
-                identity.AddClaim(new Claim(ClaimTypes.Role, empleado.Oficio));
+                identity.AddClaim(new Claim(ClaimTypes.Name, usuario.Nombre));
+                identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, usuario.IdUsuario.ToString()));
+                identity.AddClaim(new Claim(ClaimTypes.Role, usuario.Rol));
                 identity.AddClaim(new Claim("TOKEN", token));
                 ClaimsPrincipal principal = new ClaimsPrincipal(identity);
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties
@@ -49,6 +53,13 @@ namespace ProyectoAzureAMH.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
+        }
+
+        public async Task<IActionResult> LogOut()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            HttpContext.Session.Remove("TOKEN");
+            return RedirectToAction("Index", "Home");
         }
     }
 }
