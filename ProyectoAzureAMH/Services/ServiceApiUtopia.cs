@@ -1,9 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using Azure.Storage.Blobs;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NugetUtopia;
 using ProyectoAzureAMH.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -16,11 +18,13 @@ namespace ProyectoAzureAMH.Services
     {
         private string UrlApi;
         private MediaTypeWithQualityHeaderValue Header;
+        private BlobServiceClient client;
 
-        public ServiceApiUtopia(string urlapi)
+        public ServiceApiUtopia(string urlapi,BlobServiceClient client)
         {
             this.UrlApi = urlapi;
             this.Header = new MediaTypeWithQualityHeaderValue("application/json");
+            this.client = client;
         }
 
         //Este metodo no necesita el token para funcionar
@@ -175,12 +179,110 @@ namespace ProyectoAzureAMH.Services
 
         #endregion
 
+        #region Metodos de Platos
+        public async Task<List<Plato>> GetPlatosAsync()
+        {
+            string request = "/platos/getplatos";
+            List<Plato> platos = await this.CallApiAsync<List<Plato>>(request);
+            return platos;
+        }
+
+        public async Task<Plato> FindPlatoAsync(int idplato)
+        {
+            string request = "platos/findplato/" + idplato;
+            Plato plato = await this.CallApiAsync<Plato>(request);
+            return plato;
+        }
+
+        public async Task CrearPlatoAsync(Plato plato, string token)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                string request = "/platos/crearplato";
+                client.BaseAddress = new Uri(this.UrlApi);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(this.Header);
+                client.DefaultRequestHeaders.Add("Authorization", "bearer " + token);
+                Plato p = new Plato();
+                p.IdPlato = plato.IdPlato;
+                p.Nombre = plato.Nombre;
+                p.Descripcion = plato.Descripcion;
+                p.Categoria = plato.Categoria;
+                p.Precio = plato.Precio;
+                p.Foto = plato.Foto;
+
+                string json = JsonConvert.SerializeObject(p);
+                StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+                HttpResponseMessage response = await client.PostAsync(request, content);
+            }
+        }
+
+        public async Task UpdatePlatoAsync(Plato plato, string token)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                string request = "/platos/updateplato";
+                client.BaseAddress = new Uri(this.UrlApi);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(this.Header);
+                client.DefaultRequestHeaders.Add("Authorization", "bearer " + token);
+                Plato p = new Plato();
+                p.IdPlato = plato.IdPlato;
+                p.Nombre = plato.Nombre;
+                p.Descripcion = plato.Descripcion;
+                p.Categoria = plato.Categoria;
+                p.Precio = plato.Precio;
+                p.Foto = plato.Foto;
+
+                string json = JsonConvert.SerializeObject(p);
+                StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+                HttpResponseMessage response = await client.PutAsync(request, content);
+            }
+        }
+
+        public async Task DeletePlatoAsync(int idplato, string token)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                string request = "/platos/DeletePlato/" + idplato;
+                client.BaseAddress = new Uri(this.UrlApi);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(this.Header);
+                client.DefaultRequestHeaders.Add("Authorization", "bearer " + token);
+                HttpResponseMessage response = await client.DeleteAsync(request);
+            }
+        }
+        #endregion
+
+        #region Metodos de Reservas
+        public async Task<List<Reserva>> GetReservasAsync(string token)
+        {
+            string request = "/reservas/getreservas";
+            List<Reserva> reservas = await this.CallApiAsync<List<Reserva>>(request,token);
+            return reservas;
+        }
+        #endregion
+
         #region Metodos de Usuarios
         public async Task<Usuario> GetPerfilUsuarioAsync(string token)
         {
             string request = "/usuarios/perfilusuario";
             Usuario usuario = await this.CallApiAsync<Usuario>(request, token);
             return usuario;
+        }
+        #endregion
+
+        #region Blobs
+        public async Task UploadBlobAsync(string containerName, string blobName, Stream stream)
+        {
+            BlobContainerClient containerClient = this.client.GetBlobContainerClient(containerName);
+            await containerClient.UploadBlobAsync(blobName, stream);
+        }
+
+        public async Task DeleteBlobAsync(string containerName, string blobName)
+        {
+            BlobContainerClient containerClient = this.client.GetBlobContainerClient(containerName);
+            await containerClient.DeleteBlobAsync(blobName);
         }
         #endregion
     }

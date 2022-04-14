@@ -1,41 +1,34 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using NugetUtopia;
 using ProyectoAzureAMH.Filters;
-using ProyectoAzureAMH.Models;
 using ProyectoAzureAMH.Services;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace ProyectoAzureAMH.Controllers
 {
-    public class HomeController : Controller
+    public class AdminController : Controller
     {
         private ServiceApiUtopia service;
-        public HomeController(ServiceApiUtopia service)
+
+        public AdminController(ServiceApiUtopia service)
         {
             this.service = service;
         }
 
         [AuthorizeUsuarios]
-        public IActionResult GoToHome()
-        {
-
-            return RedirectToAction("Index", "Home");
-        }
-
         public async Task<IActionResult> Index()
         {
+            string token = HttpContext.User.FindFirst("TOKEN").Value;
+            List<Plato> platos = await this.service.GetPlatosAsync();
             List<Juego> juegos = await this.service.GetJuegosAsync();
-            return View(juegos);
-        }
+            List<Reserva> reservas = await this.service.GetReservasAsync(token);
 
-        public IActionResult SobreNosotros()
-        {
-            return View();
+            ViewData["PLATOS"] = platos;
+            ViewData["JUEGOS"] = juegos;
+            return View(reservas);
         }
     }
 }

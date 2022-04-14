@@ -1,3 +1,4 @@
+using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -26,7 +27,11 @@ namespace ProyectoAzureAMH
         public void ConfigureServices(IServiceCollection services)
         {
             string urlApi = this.Configuration.GetValue<string>("ApiUrls:ApiUtopia");
-            ServiceApiUtopia serviceApiUtopia = new ServiceApiUtopia(urlApi);
+            string azureKeys = this.Configuration.GetConnectionString("AzureStorageKeys");
+            BlobServiceClient blobServiceClient =
+                new BlobServiceClient(azureKeys);
+            services.AddTransient<BlobServiceClient>(x => blobServiceClient);
+            ServiceApiUtopia serviceApiUtopia = new ServiceApiUtopia(urlApi,blobServiceClient);
             services.AddTransient<ServiceApiUtopia>(x => serviceApiUtopia);
             services.AddDistributedMemoryCache();
             services.AddSession(options =>
