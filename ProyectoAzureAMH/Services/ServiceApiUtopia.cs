@@ -71,6 +71,7 @@ namespace ProyectoAzureAMH.Services
             }
         }
 
+        #region Login y Register
         //Permite recuperar el token
         public async Task<string> GetToken(string email, string password)
         {
@@ -102,6 +103,35 @@ namespace ProyectoAzureAMH.Services
             }
         }
 
+        public async Task<int> RegistrarUsuarioAsync(string nombre, string email, string password, string imagen)
+        {
+            int idusu = await this.GetMaxIdUsuario();
+            
+            using (HttpClient client = new HttpClient())
+            {
+                string request = "/usuarios/registrarusuario";
+                client.BaseAddress = new Uri(this.UrlApi);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(this.Header);
+
+                Usuario usu = new Usuario();
+                usu.IdUsuario = 0;
+                usu.Nombre = nombre;
+                usu.Email = email;
+                usu.Password = null;
+                usu.Salt = null;
+                usu.Imagen =imagen;
+                usu.Rol = "cliente";
+                usu.PasswordString = password;
+
+                string json = JsonConvert.SerializeObject(usu);
+                StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+                HttpResponseMessage response = await client.PostAsync(request, content);
+            }
+            return idusu;
+        }
+        #endregion
+
         #region Metodos de Juegos
 
         public async Task<List<Juego>> GetJuegosAsync()
@@ -113,7 +143,14 @@ namespace ProyectoAzureAMH.Services
 
         public async Task<Juego> FindJuegoAsync(int idjuego)
         {
-            string request = "juegos/findjuego/" + idjuego;
+            string request = "/juegos/findjuego/" + idjuego;
+            Juego juego = await this.CallApiAsync<Juego>(request);
+            return juego;
+        }
+
+        public async Task<Juego> FindJuegoNombreAsync(string nombre)
+        {
+            string request = "/juegos/buscarjuegonombre/" + nombre;
             Juego juego = await this.CallApiAsync<Juego>(request);
             return juego;
         }
@@ -261,6 +298,57 @@ namespace ProyectoAzureAMH.Services
             List<Reserva> reservas = await this.CallApiAsync<List<Reserva>>(request,token);
             return reservas;
         }
+
+        public async Task<Reserva> FindReservaAsync(string nombre)
+        {
+            string request = "/reservas/findreserva/"+nombre;
+            Reserva reserva= await this.CallApiAsync<Reserva>(request);
+            return reserva;
+        }
+
+        public async Task CrearReservaAsync(Reserva reserva)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                string request = "/Reservas/CrearReserva";
+                client.BaseAddress = new Uri(this.UrlApi);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(this.Header);
+
+                string json = JsonConvert.SerializeObject(reserva);
+                StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+                HttpResponseMessage response = await client.PostAsync(request, content);
+            }
+        }
+
+        public async Task DeleteReservaAsync(string nombre, string token)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                string request = "/reservas/Deletereserva/" + nombre;
+                client.BaseAddress = new Uri(this.UrlApi);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(this.Header);
+                client.DefaultRequestHeaders.Add("Authorization", "bearer " + token);
+                HttpResponseMessage response = await client.DeleteAsync(request);
+            }
+        }
+
+        public async Task UpdateReservaAsync(Reserva reserva, string token)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                string request = "/reservas/updatereserva";
+                client.BaseAddress = new Uri(this.UrlApi);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(this.Header);
+                client.DefaultRequestHeaders.Add("Authorization", "bearer " + token);
+
+                string json = JsonConvert.SerializeObject(reserva);
+                StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+                HttpResponseMessage response = await client.PutAsync(request, content);
+            }
+        }
         #endregion
 
         #region Metodos de Usuarios
@@ -270,6 +358,16 @@ namespace ProyectoAzureAMH.Services
             Usuario usuario = await this.CallApiAsync<Usuario>(request, token);
             return usuario;
         }
+        #endregion
+
+        #region Metodos de compras
+        public async Task<List<Compra>> BuscarComprasAsync(int idusuario,string token)
+        {
+            string request = "/compras/buscarcomprasusuario/" + idusuario;
+            List<Compra> compras = await this.CallApiAsync<List<Compra>>(request,token);
+            return compras;
+        }
+
         #endregion
 
         #region Blobs
@@ -285,5 +383,23 @@ namespace ProyectoAzureAMH.Services
             await containerClient.DeleteBlobAsync(blobName);
         }
         #endregion
+
+        #region Otros
+        private async Task <int> GetMaxIdUsuario()
+        {
+            string request = "/otros/getmaxidusuarios";
+            int idusuario = await this.CallApiAsync<int>(request);
+            return idusuario;
+        }
+
+        private async Task<int> GetMaxIdCompra()
+        {
+            string request = "/otros/getmaxidcompras";
+            int idcompra = await this.CallApiAsync<int>(request);
+            return idcompra;
+        }
+        #endregion
+
+
     }
 }

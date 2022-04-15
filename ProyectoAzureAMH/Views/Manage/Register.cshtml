@@ -20,24 +20,25 @@
 
 <div class="login-page">
     <div class="form">
-        <h1>Iniciar sesión</h1>
+        <h1>Registrarse</h1>
         <hr />
-        <form method="post">
+        <form method="post" enctype="multipart/form-data">
+            <label>Nombre</label>
+            <input required type="text" name="nombre" class="form-control" />
+            <br />
             <label>Email</label>
             <input required type="email" name="email" class="form-control" />
             <br />
             <label>Password</label>
             <input required type="password" name="password" class="form-control" />
             <br />
-            <button type="submit" class="btn" style="background-color: #ffbe33;color:white">Iniciar sesión</button>
+            <label>Imagen</label>
+            <input required type="file" name="imagen" class="form-control-file" />
+            <br />
+            <button type="submit" class="btn" style="background-color: #ffbe33;color:white">Registrarse</button>
             <br />
             <br />
             <button type="reset" class="btn btn-danger" style="color:white">Rehacer</button>
-            <p style="color:red">
-                @ViewData["MENSAJE"]
-            </p>
-            <hr />
-            <span>Si no estas registrado, registrate <a asp-action="Register" asp-controller="Manage">clicando aquí</a> </span>
         </form>
     </div>
 </div>

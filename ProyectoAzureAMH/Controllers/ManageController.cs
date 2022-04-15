@@ -6,6 +6,7 @@ using NugetUtopia;
 using ProyectoAzureAMH.Services;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -20,6 +21,33 @@ namespace ProyectoAzureAMH.Controllers
         {
             this.service = service;
         }
+
+        #region Registro
+        //Metodo que devuelve la vista con el formulario de registro
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        //Metodo que ejecuta el form Register
+        [HttpPost]
+        public async Task<IActionResult> Register(string nombre, string email, string password, IFormFile imagen)
+        {
+            string filename = imagen.FileName;
+            int idusuario = await this.service.RegistrarUsuarioAsync(nombre, email, password, filename);
+            filename = idusuario + "_" + filename;
+
+            using (Stream stream = imagen.OpenReadStream())
+            {
+                await this.service.UploadBlobAsync("users", filename, stream);
+
+            }
+            //string asunto = "Bienvenido a Utopia!";
+            //String mensaje = "Hola " + nombre + ". Te mandamos este correo para informarte de que te has registrado con éxito en la página web de Utopía.";
+            //this.helperMail.SendMail(email, asunto, mensaje);
+            return RedirectToAction("GoToHome", "Home");
+        }
+        #endregion
 
         public IActionResult LogIn()
         {
