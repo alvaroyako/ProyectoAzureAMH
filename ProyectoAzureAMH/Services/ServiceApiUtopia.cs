@@ -155,6 +155,7 @@ namespace ProyectoAzureAMH.Services
             return juego;
         }
 
+
         public async Task CrearJuegoAsync(Juego juego,string token)
         {
             using (HttpClient client = new HttpClient())
@@ -368,6 +369,26 @@ namespace ProyectoAzureAMH.Services
             return compras;
         }
 
+        public async Task CrearCompraAsync(Compra compra, string token)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                string request = "/compras/createcompra";
+                client.BaseAddress = new Uri(this.UrlApi);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(this.Header);
+                client.DefaultRequestHeaders.Add("Authorization", "bearer " + token);
+                Compra c = new Compra();
+                c.IdCompra = compra.IdCompra;
+                c.IdUsuario = compra.IdUsuario;
+                c.Nombre = compra.Nombre;
+
+                string json = JsonConvert.SerializeObject(c);
+                StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+                HttpResponseMessage response = await client.PostAsync(request, content);
+            }
+        }
+
         #endregion
 
         #region Blobs
@@ -392,7 +413,7 @@ namespace ProyectoAzureAMH.Services
             return idusuario;
         }
 
-        private async Task<int> GetMaxIdCompra()
+        public async Task<int> GetMaxIdCompra()
         {
             string request = "/otros/getmaxidcompras";
             int idcompra = await this.CallApiAsync<int>(request);

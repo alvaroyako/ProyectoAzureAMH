@@ -43,7 +43,7 @@ namespace ProyectoAzureAMH.Controllers
             //string mensaje = "<p>Hola " + nombre + "! Los datos de tu reserva son los siguientes:</p> <p> Día: " + fecha.ToShortDateString() + "</p><p>Hora: " + fecha.ToShortTimeString() + "</p><p> Número de asistentes: " + personas + "</p><p> Teléfono de contacto: " + telefono + "</p><p> Recuerda enseñar este correo en el local para verificar la reserva.</p><p> Esperemos que pases un gran día en Utopia! </p>";
             //this.helperMail.SendMail(email, asunto, mensaje);
 
-            //ViewData["CORREO"] = "<div><p>Hemos enviado un correo al email proporcionado. Por favor revisa tu bandeja de entrada y en caso de no haber ningun mensaje, mira en la carpeta spam</p></div>";
+            ViewData["CORREO"] = "<div><p>Hemos enviado un correo al email proporcionado. Por favor revisa tu bandeja de entrada y en caso de no haber ningun mensaje, mira en la carpeta spam</p></div>";
 
             return View();
         }
