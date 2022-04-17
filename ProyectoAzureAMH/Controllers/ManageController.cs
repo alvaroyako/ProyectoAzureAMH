@@ -42,9 +42,11 @@ namespace ProyectoAzureAMH.Controllers
                 await this.service.UploadBlobAsync("users", filename, stream);
 
             }
-            //string asunto = "Bienvenido a Utopia!";
-            //String mensaje = "Hola " + nombre + ". Te mandamos este correo para informarte de que te has registrado con éxito en la página web de Utopía.";
-            //this.helperMail.SendMail(email, asunto, mensaje);
+
+            string asunto = "Bienvenido a Utopia";
+            string mensaje = "Hola " + nombre + ". Te mandamos este correo para informarte de que te has registrado con éxito en la página web de Utopía.";
+            await this.service.SendMail(email, asunto, mensaje);
+            
             return RedirectToAction("GoToHome", "Home");
         }
         #endregion

@@ -39,9 +39,9 @@ namespace ProyectoAzureAMH.Controllers
             reserva.Hora = fecha.ToShortTimeString();
 
             await this.service.CrearReservaAsync(reserva);
-            //string asunto = "Reserva Utopia";
-            //string mensaje = "<p>Hola " + nombre + "! Los datos de tu reserva son los siguientes:</p> <p> Día: " + fecha.ToShortDateString() + "</p><p>Hora: " + fecha.ToShortTimeString() + "</p><p> Número de asistentes: " + personas + "</p><p> Teléfono de contacto: " + telefono + "</p><p> Recuerda enseñar este correo en el local para verificar la reserva.</p><p> Esperemos que pases un gran día en Utopia! </p>";
-            //this.helperMail.SendMail(email, asunto, mensaje);
+            string asunto = "Reserva Utopia";
+            string mensaje = "<p>Hola " + nombre + "! Los datos de tu reserva son los siguientes:</p> <p> Día: " + fecha.ToShortDateString() + "</p><p>Hora: " + fecha.ToShortTimeString() + "</p><p> Número de asistentes: " + personas + "</p><p> Teléfono de contacto: " + telefono + "</p><p> Recuerda enseñar este correo en el local para verificar la reserva.</p><p> Esperemos que pases un gran día en Utopia! </p>";
+            await this.service.SendMail(email, asunto, mensaje);
 
             ViewData["CORREO"] = "<div><p>Hemos enviado un correo al email proporcionado. Por favor revisa tu bandeja de entrada y en caso de no haber ningun mensaje, mira en la carpeta spam</p></div>";
 
@@ -106,9 +106,10 @@ namespace ProyectoAzureAMH.Controllers
             reserva.Hora = fecha.ToShortTimeString();
 
             await this.service.UpdateReservaAsync(reserva,token);
-            //string asunto = "Reserva Utopia";
-            //string mensaje = "<p>Hola " + nombre + "! Hemos modificado tu reserva siendo este el resultado final:</p> <p> Día: " + fecha.ToShortDateString() + "</p><p>Hora: " + fecha.ToShortTimeString() + "</p><p> Número de asistentes: " + personas + "</p><p> Teléfono de contacto: " + telefono + "</p><p> Recuerda enseñar este nuevo correo en el local para verificar la reserva. Puedes eliminar el correo anterior si asi lo deseas</p><p> Esperemos que pases un gran día en Utopia! </p>";
-            //this.helperMail.SendMail(email, asunto, mensaje);
+            string asunto = "Reserva Utopia";
+            string mensaje = "Hola " + nombre + "! Hemos modificado tu reserva siendo este el resultado final:</p> <p> Día: " + fecha.ToShortDateString() + "</p><p>Hora: " + fecha.ToShortTimeString() + "</p><p> Número de asistentes: " + personas + "</p><p> Teléfono de contacto: " + telefono + "</p><p> Recuerda enseñar este nuevo correo en el local para verificar la reserva. Puedes eliminar el correo anterior si asi lo deseas</p><p> Esperemos que pases un gran día en Utopia! </p>";
+            await this.service.SendMail(email, asunto, mensaje);
+            
             return RedirectToAction("Index", "Admin");
         }
         #endregion
