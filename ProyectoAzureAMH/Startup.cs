@@ -28,6 +28,12 @@ namespace ProyectoAzureAMH
         {
             string urlApi = this.Configuration.GetValue<string>("ApiUrls:ApiUtopia");
             string azureKeys = this.Configuration.GetConnectionString("AzureStorageKeys");
+            string CadenaCache = this.Configuration.GetConnectionString("CacheRedis");
+
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = CadenaCache;
+            });
             BlobServiceClient blobServiceClient =
                 new BlobServiceClient(azureKeys);
             services.AddTransient<BlobServiceClient>(x => blobServiceClient);

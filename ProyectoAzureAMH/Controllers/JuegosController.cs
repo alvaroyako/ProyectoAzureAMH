@@ -89,5 +89,36 @@ namespace ProyectoAzureAMH.Controllers
 
             return RedirectToAction("Index", "Admin");
         }
+
+        [AuthorizeUsuarios]
+        public IActionResult Favoritos()
+        {
+            List<Juego> favoritos =
+                this.service.GetFavorito();
+            if (favoritos == null)
+            {
+                return View();
+            }
+            else
+            {
+                return View(favoritos);
+            }
+        }
+
+        [AuthorizeUsuarios]
+        public async Task<IActionResult> SeleccionarFavorito(int idjuego)
+        {           
+            Juego favorito = await this.service.FindJuegoAsync(idjuego);
+            this.service.AddFavorito(favorito);
+            return RedirectToAction("Favoritos");
+        }
+
+        [AuthorizeUsuarios]
+        public IActionResult EliminarFavorito(int idjuego)
+        {
+            this.service.DeleteFavorito(idjuego);
+            return RedirectToAction("Favoritos");
+        }
+
     }
 }

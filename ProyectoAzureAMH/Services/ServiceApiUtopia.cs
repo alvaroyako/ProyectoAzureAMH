@@ -2,7 +2,9 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NugetUtopia;
+using ProyectoAzureAMH.Helpers;
 using ProyectoAzureAMH.Models;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,12 +21,14 @@ namespace ProyectoAzureAMH.Services
         private string UrlApi;
         private MediaTypeWithQualityHeaderValue Header;
         private BlobServiceClient client;
+        private IDatabase database;
 
         public ServiceApiUtopia(string urlapi,BlobServiceClient client)
         {
             this.UrlApi = urlapi;
             this.Header = new MediaTypeWithQualityHeaderValue("application/json");
             this.client = client;
+            this.database = CacheRedisMultiplexer.GetConnection.GetDatabase();
         }
 
         //Este metodo no necesita el token para funcionar
@@ -403,6 +407,74 @@ namespace ProyectoAzureAMH.Services
             BlobContainerClient containerClient = this.client.GetBlobContainerClient(containerName);
             await containerClient.DeleteBlobAsync(blobName);
         }
+        #endregion
+
+        #region Cache Redis
+        public void AddFavorito(Juego juego)
+        {
+            string jsonJuegos = this.database.StringGet("favoritos");
+            List<Juego> favoritos;
+            if (jsonJuegos == null)
+            {
+                //no hay datos
+                favoritos = new List<Juego>();
+            }
+            else
+            {
+                //deserializamos favoritos
+                favoritos = JsonConvert.DeserializeObject<List<Juego>>(jsonJuegos);
+            }
+            favoritos.Add(juego);
+            //volver a serializar para pasarlo a cache redis
+            jsonJuegos = JsonConvert.SerializeObject(favoritos);
+            //almacenamos clave dentro cache redis
+            this.database.StringSet("favoritos", jsonJuegos);
+        }
+
+        public List<Juego> GetFavorito()
+        {
+            string jsonJuegos = this.database.StringGet("favoritos");
+            if (jsonJuegos == null)
+            {
+                return null;
+            }
+            else
+            {
+                List<Juego> favoritos =
+                    JsonConvert.DeserializeObject<List<Juego>>(jsonJuegos);
+                return favoritos;
+            }
+        }
+
+        public void DeleteFavorito(int idJuego)
+        {
+            string jsonJuegos = this.database.StringGet("favoritos");
+            if (jsonJuegos != null)
+            {
+                List<Juego> favoritos =
+                    JsonConvert.DeserializeObject<List<Juego>>(jsonJuegos);
+                //buscamos en la colecciona  partir del id
+                Juego eliminar =
+                    favoritos.SingleOrDefault(z => z.IdJuego == idJuego);
+                favoritos.Remove(eliminar);
+                //comprobamos si quedan favoritos
+                if (favoritos.Count() == 0)
+                {
+                    //elimina key de azure
+                    this.database.KeyDelete("favoritos");
+                }
+                else
+                {
+                    jsonJuegos = JsonConvert.SerializeObject(favoritos);
+                    //indica tiempo de almacenamiento de elementos en una key
+                    this.database.StringSet("favoritos", jsonJuegos
+                        , TimeSpan.FromMinutes(15));
+                }
+            }
+        }
+
+
+
         #endregion
 
         #region Otros
