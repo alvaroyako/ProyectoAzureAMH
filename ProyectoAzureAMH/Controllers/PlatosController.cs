@@ -26,7 +26,7 @@ namespace ProyectoAzureAMH.Controllers
             return View(platos);
         }
 
-        [AuthorizeUsuarios]
+        [AuthorizeUsuarios(Policy = "AdminOnly")]
         public IActionResult CrearPlato()
         {
             return View();
@@ -54,7 +54,7 @@ namespace ProyectoAzureAMH.Controllers
             return RedirectToAction("Index", "Admin");
         }
 
-        [AuthorizeUsuarios]
+        [AuthorizeUsuarios(Policy = "AdminOnly")]
         public async Task<ActionResult> DeletePlato(int idplato)
         {
             string token = HttpContext.User.FindFirst("TOKEN").Value;
@@ -64,7 +64,7 @@ namespace ProyectoAzureAMH.Controllers
             return RedirectToAction("Index", "Admin");
         }
 
-        [AuthorizeUsuarios]
+        [AuthorizeUsuarios(Policy = "AdminOnly")]
         public async Task<IActionResult> EditarPlato(int idplato)
         {
             Plato plato = await this.service.FindPlatoAsync(idplato);

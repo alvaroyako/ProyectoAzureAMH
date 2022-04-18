@@ -18,7 +18,7 @@ namespace ProyectoAzureAMH.Controllers
             this.service = service;
         }
 
-        [AuthorizeUsuarios]
+        [AuthorizeUsuarios(Policy = "AdminOnly")]
         public async Task<IActionResult> Index()
         {
             string token = HttpContext.User.FindFirst("TOKEN").Value;

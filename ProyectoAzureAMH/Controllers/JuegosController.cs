@@ -26,7 +26,7 @@ namespace ProyectoAzureAMH.Controllers
             return View(juegos);
         }
 
-        [AuthorizeUsuarios]
+        [AuthorizeUsuarios(Policy = "AdminOnly")]
         public IActionResult CrearJuego()
         {
             return View();
@@ -54,7 +54,7 @@ namespace ProyectoAzureAMH.Controllers
             return RedirectToAction("Index", "Admin");
         }
 
-        [AuthorizeUsuarios]
+        [AuthorizeUsuarios(Policy = "AdminOnly")]
         public async Task<ActionResult> DeleteJuego(int idjuego)
         {
             string token = HttpContext.User.FindFirst("TOKEN").Value;
@@ -64,7 +64,7 @@ namespace ProyectoAzureAMH.Controllers
             return RedirectToAction("Index", "Admin");
         }
 
-        [AuthorizeUsuarios]
+        [AuthorizeUsuarios(Policy = "AdminOnly")]
         public async Task<IActionResult> EditarJuego(int idjuego)
         {
             Juego juego = await this.service.FindJuegoAsync(idjuego);

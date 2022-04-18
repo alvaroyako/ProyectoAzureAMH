@@ -50,7 +50,7 @@ namespace ProyectoAzureAMH.Controllers
         #endregion
 
         #region Lado del Admin
-        [AuthorizeUsuarios]
+        [AuthorizeUsuarios(Policy = "AdminOnly")]
         public IActionResult CrearReserva()
         {
             return View();
@@ -74,7 +74,7 @@ namespace ProyectoAzureAMH.Controllers
         }
 
         //Metodo para eliminar reservas
-        [AuthorizeUsuarios]
+        [AuthorizeUsuarios(Policy = "AdminOnly")]
         public async Task <IActionResult> DeleteReserva(string nombre)
         {
             string token = HttpContext.User.FindFirst("TOKEN").Value;
@@ -83,7 +83,7 @@ namespace ProyectoAzureAMH.Controllers
         }
 
         //Metodo para cargar datos de la reserva en el form editar
-        [AuthorizeUsuarios]
+        [AuthorizeUsuarios(Policy = "AdminOnly")]
         public async Task <IActionResult> EditarReserva(string nombre)
         {
             string token = HttpContext.User.FindFirst("TOKEN").Value;

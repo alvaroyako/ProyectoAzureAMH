@@ -34,6 +34,11 @@ namespace ProyectoAzureAMH
             {
                 options.Configuration = CadenaCache;
             });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("AdminOnly", policy => policy.RequireClaim("Administrador"));
+            });
             BlobServiceClient blobServiceClient =
                 new BlobServiceClient(azureKeys);
             services.AddTransient<BlobServiceClient>(x => blobServiceClient);
@@ -50,7 +55,11 @@ namespace ProyectoAzureAMH
                 options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            }).AddCookie();
+            }).AddCookie(
+                CookieAuthenticationDefaults.AuthenticationScheme, config=>
+                {
+                    config.AccessDeniedPath = "/Manage/ErrorAcceso";
+                });
             services.AddControllersWithViews(options => options.EnableEndpointRouting = false);
         }
 

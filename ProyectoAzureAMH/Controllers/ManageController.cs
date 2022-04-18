@@ -73,6 +73,10 @@ namespace ProyectoAzureAMH.Controllers
                 identity.AddClaim(new Claim(ClaimTypes.Name, usuario.Nombre));
                 identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, usuario.IdUsuario.ToString()));
                 identity.AddClaim(new Claim(ClaimTypes.Role, usuario.Rol));
+                if (usuario.Rol == "admin")
+                {
+                    identity.AddClaim(new Claim("Administrador", "Soy admin"));
+                }
                 identity.AddClaim(new Claim("Email", usuario.Email));
                 identity.AddClaim(new Claim("Imagen", usuario.Imagen));
                 identity.AddClaim(new Claim("TOKEN", token));
@@ -92,6 +96,11 @@ namespace ProyectoAzureAMH.Controllers
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             HttpContext.Session.Remove("TOKEN");
             return RedirectToAction("Index", "Home");
+        }
+
+        public IActionResult ErrorAcceso()
+        {
+            return View();
         }
     }
 }
