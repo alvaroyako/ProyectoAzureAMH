@@ -455,7 +455,7 @@ namespace ProyectoAzureAMH.Services
                     JsonConvert.DeserializeObject<List<Juego>>(jsonJuegos);
                 //buscamos en la colecciona  partir del id
                 Juego eliminar =
-                    favoritos.SingleOrDefault(z => z.IdJuego == idJuego);
+                    favoritos.FirstOrDefault(z => z.IdJuego == idJuego);
                 favoritos.Remove(eliminar);
                 //comprobamos si quedan favoritos
                 if (favoritos.Count() == 0)
