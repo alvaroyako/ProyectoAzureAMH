@@ -93,8 +93,9 @@ namespace ProyectoAzureAMH.Controllers
         [AuthorizeUsuarios]
         public IActionResult Favoritos()
         {
+            string idusu = HttpContext.Session.Id.ToString();
             List<Juego> favoritos =
-                this.service.GetFavorito();
+                this.service.GetFavorito(idusu);
             if (favoritos == null)
             {
                 return View();
@@ -107,16 +108,18 @@ namespace ProyectoAzureAMH.Controllers
 
         [AuthorizeUsuarios]
         public async Task<IActionResult> SeleccionarFavorito(int idjuego)
-        {           
+        {
+            string idusu = HttpContext.Session.Id.ToString();
             Juego favorito = await this.service.FindJuegoAsync(idjuego);
-            this.service.AddFavorito(favorito);
+            this.service.AddFavorito(favorito,idusu);
             return RedirectToAction("Favoritos");
         }
 
         [AuthorizeUsuarios]
         public IActionResult EliminarFavorito(int idjuego)
         {
-            this.service.DeleteFavorito(idjuego);
+            string idusu = HttpContext.Session.Id.ToString();
+            this.service.DeleteFavorito(idjuego,idusu);
             return RedirectToAction("Favoritos");
         }
 

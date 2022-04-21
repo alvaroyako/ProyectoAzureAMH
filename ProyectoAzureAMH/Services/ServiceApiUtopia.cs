@@ -1,4 +1,6 @@
 ﻿using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NugetUtopia;
@@ -410,9 +412,9 @@ namespace ProyectoAzureAMH.Services
         #endregion
 
         #region Cache Redis
-        public void AddFavorito(Juego juego)
+        public void AddFavorito(Juego juego,string idusu)
         {
-            string jsonJuegos = this.database.StringGet("favoritos");
+            string jsonJuegos = this.database.StringGet("favoritos"+idusu);
             List<Juego> favoritos;
             if (jsonJuegos == null)
             {
@@ -428,12 +430,12 @@ namespace ProyectoAzureAMH.Services
             //volver a serializar para pasarlo a cache redis
             jsonJuegos = JsonConvert.SerializeObject(favoritos);
             //almacenamos clave dentro cache redis
-            this.database.StringSet("favoritos", jsonJuegos);
+            this.database.StringSet("favoritos"+idusu, jsonJuegos);
         }
 
-        public List<Juego> GetFavorito()
+        public List<Juego> GetFavorito(string idusu)
         {
-            string jsonJuegos = this.database.StringGet("favoritos");
+            string jsonJuegos = this.database.StringGet("favoritos"+idusu);
             if (jsonJuegos == null)
             {
                 return null;
@@ -446,9 +448,9 @@ namespace ProyectoAzureAMH.Services
             }
         }
 
-        public void DeleteFavorito(int idJuego)
+        public void DeleteFavorito(int idJuego,string idusu)
         {
-            string jsonJuegos = this.database.StringGet("favoritos");
+            string jsonJuegos = this.database.StringGet("favoritos"+idusu);
             if (jsonJuegos != null)
             {
                 List<Juego> favoritos =
@@ -461,13 +463,13 @@ namespace ProyectoAzureAMH.Services
                 if (favoritos.Count() == 0)
                 {
                     //elimina key de azure
-                    this.database.KeyDelete("favoritos");
+                    this.database.KeyDelete("favoritos"+idusu);
                 }
                 else
                 {
                     jsonJuegos = JsonConvert.SerializeObject(favoritos);
                     //indica tiempo de almacenamiento de elementos en una key
-                    this.database.StringSet("favoritos", jsonJuegos
+                    this.database.StringSet("favoritos"+idusu, jsonJuegos
                         , TimeSpan.FromMinutes(15));
                 }
             }
